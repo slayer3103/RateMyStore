@@ -1,39 +1,90 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeContextProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
-// Pages (to be fully implemented in subsequent phases)
-// Placeholders used here — will be replaced in Phase 2+
+// Placeholder components for pages to be implemented in later phases
 const ComingSoon = ({ title }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Inter, sans-serif' }}>
-    <h2>{title} — Coming Soon</h2>
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      fontFamily: 'Inter, sans-serif',
+      flexDirection: 'column',
+      gap: 8,
+    }}
+  >
+    <h2>{title}</h2>
+    <p style={{ color: '#9494B8' }}>Coming in the next phase...</p>
   </div>
 );
 
 function App() {
   return (
     <ThemeContextProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<ComingSoon title="Login" />} />
-          <Route path="/register" element={<ComingSoon title="Register" />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* Admin routes */}
-          <Route path="/admin/dashboard" element={<ComingSoon title="Admin Dashboard" />} />
-          <Route path="/admin/users" element={<ComingSoon title="Admin Users" />} />
-          <Route path="/admin/stores" element={<ComingSoon title="Admin Stores" />} />
+            {/* Admin routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <ComingSoon title="Admin Dashboard" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <ComingSoon title="User Management" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/stores"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <ComingSoon title="Store Management" />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* User routes */}
-          <Route path="/stores" element={<ComingSoon title="Browse Stores" />} />
+            {/* User routes */}
+            <Route
+              path="/stores"
+              element={
+                <ProtectedRoute allowedRoles={['USER']}>
+                  <ComingSoon title="Browse Stores" />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Owner routes */}
-          <Route path="/owner/dashboard" element={<ComingSoon title="Owner Dashboard" />} />
+            {/* Owner routes */}
+            <Route
+              path="/owner/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['STORE_OWNER']}>
+                  <ComingSoon title="Owner Dashboard" />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
+            {/* Default redirect */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeContextProvider>
   );
 }
