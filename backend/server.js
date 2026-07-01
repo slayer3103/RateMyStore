@@ -12,6 +12,8 @@ const { sendSuccess } = require('./utils/apiResponse');
 
 // ─── Route Imports ────────────────────────────────────────────────────────────
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const storeRoutes = require('./routes/storeRoutes');
 
 const app = express();
 
@@ -28,6 +30,8 @@ app.get('/api/health', (req, res) => {
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/stores', storeRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use('*', (req, res) => {
