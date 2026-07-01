@@ -10,6 +10,9 @@ const requestLogger = require('./middlewares/requestLogger');
 const { globalErrorHandler } = require('./middlewares/errorHandler');
 const { sendSuccess } = require('./utils/apiResponse');
 
+// ─── Route Imports ────────────────────────────────────────────────────────────
+const authRoutes = require('./routes/authRoutes');
+
 const app = express();
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
@@ -23,11 +26,8 @@ app.get('/api/health', (req, res) => {
   sendSuccess(res, { status: 'healthy', environment: nodeEnv }, 'Server is running');
 });
 
-// ─── API Routes (to be added in Phase 2+) ────────────────────────────────────
-// app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-// app.use('/api/stores', storeRoutes);
-// app.use('/api/ratings', ratingRoutes);
+// ─── API Routes ───────────────────────────────────────────────────────────────
+app.use('/api/auth', authRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use('*', (req, res) => {
