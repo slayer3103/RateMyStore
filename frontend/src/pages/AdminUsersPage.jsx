@@ -5,7 +5,7 @@ import {
   TableSortLabel, Chip, IconButton, Button, Dialog, DialogTitle,
   DialogContent, DialogContentText, DialogActions, Alert, CircularProgress,
   Tooltip, MenuItem, Select, FormControl, InputLabel, Snackbar,
-  Avatar,
+  Avatar, Skeleton,
 } from '@mui/material';
 import { Search, Delete, Visibility, PersonAdd } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -149,15 +149,24 @@ const AdminUsersPage = () => {
               </TableHead>
               <TableBody>
                 {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
+                  Array.from(new Array(5)).map((_, index) => (
+                    <TableRow key={`skeleton-${index}`}>
+                      <TableCell><Skeleton variant="text" width="60%" /></TableCell>
+                      <TableCell><Skeleton variant="text" width="80%" /></TableCell>
+                      <TableCell><Skeleton variant="text" width="90%" /></TableCell>
+                      <TableCell><Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: 1 }} /></TableCell>
+                      <TableCell><Skeleton variant="text" width={80} /></TableCell>
+                      <TableCell align="center"><Skeleton variant="circular" width={24} height={24} sx={{ mx: 'auto' }} /></TableCell>
+                    </TableRow>
+                  ))
                 ) : users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                      <Typography color="text.secondary">No users found</Typography>
+                    <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                        <PersonAdd sx={{ fontSize: 48, color: 'text.secondary', opacity: 0.5 }} />
+                        <Typography variant="h6" color="text.secondary">No users found</Typography>
+                        <Typography variant="body2" color="text.disabled">Adjust your search or filters, or add a new user.</Typography>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -192,6 +201,7 @@ const AdminUsersPage = () => {
                         <Tooltip title="Delete">
                           <IconButton
                             id={`delete-user-${user.id}`}
+                            aria-label={`Delete user ${user.name}`}
                             size="small"
                             color="error"
                             onClick={() => setDeleteDialog({ open: true, user })}

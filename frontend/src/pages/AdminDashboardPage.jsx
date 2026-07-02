@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  Box, Grid, Card, CardContent, Typography, CircularProgress,
+  Box, Grid, Card, CardContent, Typography, Skeleton,
   Alert, Divider, Chip,
 } from '@mui/material';
 import { People, Store, Star, AdminPanelSettings } from '@mui/icons-material';
@@ -25,7 +25,7 @@ const StatCard = ({ icon, label, value, color }) => (
       </Box>
       <Box>
         <Typography variant="h4" fontWeight={700}>
-          {value ?? <CircularProgress size={24} />}
+          {value !== undefined ? value : <Skeleton width={40} />}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {label}
@@ -66,63 +66,65 @@ const AdminDashboardPage = () => {
 
         {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-            <CircularProgress size={48} />
-          </Box>
-        ) : (
-          <>
-            <Grid container spacing={3} mb={4}>
-              <Grid item xs={12} sm={6} md={3}>
-                <StatCard
-                  icon={<People sx={{ color: 'white', fontSize: 28 }} />}
-                  label="Total Users"
-                  value={stats?.totalUsers}
-                  color="primary"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <StatCard
-                  icon={<Store sx={{ color: 'white', fontSize: 28 }} />}
-                  label="Total Stores"
-                  value={stats?.totalStores}
-                  color="secondary"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <StatCard
-                  icon={<Star sx={{ color: 'white', fontSize: 28 }} />}
-                  label="Total Ratings"
-                  value={stats?.totalRatings}
-                  color="warning"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <StatCard
-                  icon={<AdminPanelSettings sx={{ color: 'white', fontSize: 28 }} />}
-                  label="Admins"
-                  value={stats?.roleBreakdown?.ADMIN ?? 0}
-                  color="error"
-                />
-              </Grid>
-            </Grid>
+        <Grid container spacing={3} mb={4}>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              icon={<People sx={{ color: 'white', fontSize: 28 }} />}
+              label="Total Users"
+              value={stats?.totalUsers}
+              color="primary"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              icon={<Store sx={{ color: 'white', fontSize: 28 }} />}
+              label="Total Stores"
+              value={stats?.totalStores}
+              color="secondary"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              icon={<Star sx={{ color: 'white', fontSize: 28 }} />}
+              label="Total Ratings"
+              value={stats?.totalRatings}
+              color="warning"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              icon={<AdminPanelSettings sx={{ color: 'white', fontSize: 28 }} />}
+              label="Admins"
+              value={stats?.roleBreakdown?.ADMIN}
+              color="error"
+            />
+          </Grid>
+        </Grid>
 
-            {/* Role Breakdown */}
-            <Card>
-              <CardContent>
-                <Typography variant="h6" fontWeight={600} gutterBottom>
-                  User Role Breakdown
-                </Typography>
-                <Divider sx={{ mb: 2 }} />
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        {/* Role Breakdown */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              User Role Breakdown
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {loading ? (
+                <>
+                  <Skeleton variant="rounded" width={100} height={32} sx={{ borderRadius: 16 }} />
+                  <Skeleton variant="rounded" width={100} height={32} sx={{ borderRadius: 16 }} />
+                  <Skeleton variant="rounded" width={120} height={32} sx={{ borderRadius: 16 }} />
+                </>
+              ) : (
+                <>
                   <Chip label={`Admins: ${stats?.roleBreakdown?.ADMIN ?? 0}`} color="error" variant="outlined" />
                   <Chip label={`Users: ${stats?.roleBreakdown?.USER ?? 0}`} color="primary" variant="outlined" />
                   <Chip label={`Store Owners: ${stats?.roleBreakdown?.STORE_OWNER ?? 0}`} color="secondary" variant="outlined" />
-                </Box>
-              </CardContent>
-            </Card>
-          </>
-        )}
+                </>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
       </Box>
     </AppLayout>
   );
