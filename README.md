@@ -20,6 +20,87 @@ A production-ready MERN-stack application (using PostgreSQL and Prisma instead o
 
 ---
 
+## Architecture Diagrams 🗺️
+
+### 1. System Use Case Diagram
+This diagram outlines the core actors (Admin, User, Store Owner) and their specific interactions with the system.
+
+```mermaid
+usecaseDiagram
+    actor Admin
+    actor User
+    actor "Store Owner" as Owner
+
+    package "RateMyStore Application" {
+        usecase "Manage Users (CRUD)" as UC1
+        usecase "Manage Stores (CRUD)" as UC2
+        usecase "Browse Stores" as UC3
+        usecase "Submit/Edit Rating" as UC4
+        usecase "View Aggregated Stats" as UC5
+        usecase "View Raters List" as UC6
+        usecase "Update Password" as UC7
+    }
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC7
+
+    User --> UC3
+    User --> UC4
+    User --> UC7
+
+    Owner --> UC5
+    Owner --> UC6
+    Owner --> UC7
+```
+
+### 2. Level 2 Data Flow Diagram (DFD)
+This diagram illustrates the flow of data between external entities, processes, and our PostgreSQL data stores.
+
+```mermaid
+graph TD
+    %% External Entities
+    E1[User/Client]
+    E2[Admin Client]
+    
+    %% Processes (Level 2)
+    P1((1.0 Auth & RBAC))
+    P2((2.0 Store Management))
+    P3((3.0 Rating Processing))
+    P4((4.0 Dashboard Aggregation))
+
+    %% Data Stores
+    D1[(D1: Users Table)]
+    D2[(D2: Stores Table)]
+    D3[(D3: Ratings Table)]
+
+    %% Data Flow
+    E1 -- Credentials --> P1
+    E2 -- Credentials --> P1
+    P1 -- Read/Write User Data --> D1
+    P1 -- JWT Token --> E1
+    P1 -- JWT Token --> E2
+
+    E2 -- Create/Delete Store --> P2
+    P2 -- Write Store Data --> D2
+    
+    E1 -- Submit Rating --> P3
+    P3 -- Validate User/Store --> D1
+    P3 -- Validate User/Store --> D2
+    P3 -- Insert/Update Rating --> D3
+
+    E1 -- Request Store List --> P2
+    P2 -- Read Stores --> D2
+    P2 -- Store List + Avg Ratings --> E1
+
+    E1 -- Request Dashboard --> P4
+    P4 -- Read Store/Ratings Data --> D2
+    P4 -- Read Store/Ratings Data --> D3
+    P4 -- Aggregated Stats --> E1
+```
+
+---
+
 ## Getting Started 🚀
 
 ### Prerequisites
@@ -58,7 +139,18 @@ Start the backend development server:
 npm run dev
 ```
 
-### 3. Frontend Setup
+### 3. Database Seeding (Default Accounts)
+You can optionally populate the database with default accounts for testing purposes by running the seed script from the `backend` directory:
+```bash
+npx prisma db seed
+```
+
+**Default Test Credentials (Password for all: `password123`)**:
+- **Admin**: `admin@example.com`
+- **Store Owner**: `owner@example.com`
+- **User**: `user@example.com`
+
+### 4. Frontend Setup
 Open a new terminal, navigate to the `frontend` directory, and install dependencies:
 ```bash
 cd frontend
