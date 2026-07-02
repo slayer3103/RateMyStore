@@ -10,12 +10,12 @@ A production-ready MERN-stack application (using PostgreSQL and Prisma instead o
   - **Store Owner**: Dashboard view with aggregated rating statistics and list of users who rated their store.
 - **Modern UI/UX**: Built with React (Vite) & Material UI, featuring dark/light mode, skeleton loaders, and responsive layouts.
 - **Robust Backend**: Node.js & Express API with comprehensive Winston/Morgan logging, global error handling, and Zod validation.
-- **Database**: PostgreSQL with Prisma v7 (using the optimized `@prisma/adapter-pg` driver).
+- **Database**: PostgreSQL with Prisma v7 ORM (using the optimized `@prisma/adapter-pg` driver).
 
 ## Tech Stack 🛠️
 
 - **Frontend**: React 18, Vite, React Router v6, Material UI (MUI), React Hook Form, Zod.
-- **Backend**: Node.js, Express, JSON Web Tokens (JWT), bcryptjs.
+- **Backend**: Node.js, Express, JSON Web Tokens (JWT), bcryptjs, Winston.
 - **Database**: PostgreSQL, Prisma ORM v7.
 
 ---
@@ -54,7 +54,47 @@ usecaseDiagram
     Owner --> UC7
 ```
 
-### 2. Level 2 Data Flow Diagram (DFD)
+### 2. Entity-Relationship (ER) Diagram
+This diagram shows the database schema, detailing the entities (User, Store, Rating) and their relationships.
+
+```mermaid
+erDiagram
+    USER ||--o{ STORE : "owns (as STORE_OWNER)"
+    USER ||--o{ RATING : "submits"
+    STORE ||--o{ RATING : receives
+
+    USER {
+        String id PK
+        String name
+        String email UK
+        String password
+        String address
+        enum role "ADMIN, USER, STORE_OWNER"
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    STORE {
+        String id PK
+        String name
+        String email
+        String address
+        String ownerId FK
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    RATING {
+        String id PK
+        Int rating
+        String userId FK
+        String storeId FK
+        DateTime createdAt
+        DateTime updatedAt
+    }
+```
+
+### 3. Level 2 Data Flow Diagram (DFD)
 This diagram illustrates the flow of data between external entities, processes, and our PostgreSQL data stores.
 
 ```mermaid
