@@ -278,7 +278,7 @@ const AppLayout = ({ children }) => {
         }}
       >
         <Toolbar />
-        <Box sx={{ maxWidth: 1400, width: '100%', mx: 'auto' }}>
+        <Box className="fade-in-up" sx={{ maxWidth: 1400, width: '100%', mx: 'auto' }}>
           {children}
         </Box>
       </Box>

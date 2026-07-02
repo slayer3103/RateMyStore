@@ -85,6 +85,45 @@ export const darkTheme = createTheme({
         },
       },
     },
+    MuiCssBaseline: {
+      styleOverrides: {
+        '*:focus-visible': {
+          outline: `3px solid ${primaryColor}`,
+          outlineOffset: '2px',
+          borderRadius: '4px',
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 16,
+          background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
+          border: '1px solid rgba(108, 99, 255, 0.15)',
+          boxShadow: '0 16px 64px rgba(0,0,0,0.4)',
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          alignItems: 'center',
+          fontWeight: 600,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+        },
+        filledSuccess: {
+          backgroundColor: 'rgba(76, 175, 80, 0.1)',
+          color: '#4CAF50',
+          border: '1px solid rgba(76, 175, 80, 0.2)',
+        },
+        filledError: {
+          backgroundColor: 'rgba(211, 47, 47, 0.1)',
+          color: '#D32F2F',
+          border: '1px solid rgba(211, 47, 47, 0.2)',
+        },
+      },
+    },
   },
 });
 
@@ -153,6 +192,42 @@ export const lightTheme = createTheme({
             fontWeight: 700,
             color: primaryColor,
           },
+        },
+      },
+    },
+    MuiCssBaseline: {
+      styleOverrides: {
+        '*:focus-visible': {
+          outline: `3px solid ${primaryColor}`,
+          outlineOffset: '2px',
+          borderRadius: '4px',
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 16,
+          boxShadow: '0 16px 64px rgba(108, 99, 255, 0.15)',
+          border: '1px solid rgba(108, 99, 255, 0.1)',
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          alignItems: 'center',
+          fontWeight: 600,
+          boxShadow: '0 4px 24px rgba(108, 99, 255, 0.1)',
+        },
+        standardSuccess: {
+          backgroundColor: '#EDF7ED',
+          color: '#1E4620',
+        },
+        standardError: {
+          backgroundColor: '#FDEDED',
+          color: '#5F2120',
         },
       },
     },

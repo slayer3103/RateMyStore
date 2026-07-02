@@ -155,7 +155,7 @@ const AdminUsersPage = () => {
               </Typography>
             </Box>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <TextField
                   placeholder="Filter by Name"
                   value={filterName}
@@ -165,7 +165,7 @@ const AdminUsersPage = () => {
                   InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <TextField
                   placeholder="Filter by Email"
                   value={filterEmail}
@@ -175,7 +175,7 @@ const AdminUsersPage = () => {
                   InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <TextField
                   placeholder="Filter by Address"
                   value={filterAddress}
@@ -185,8 +185,8 @@ const AdminUsersPage = () => {
                   InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <FormControl size="small" fullWidth>
+              <Grid item xs={12} sm={6} lg={3}>
+                <FormControl size="small" fullWidth sx={{ minWidth: 200 }}>
                   <InputLabel id="role-filter-label">Filter by Role</InputLabel>
                   <Select
                     labelId="role-filter-label"
