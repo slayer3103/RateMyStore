@@ -20,7 +20,11 @@ const ownerRoutes = require('./routes/ownerRoutes');
 const app = express();
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
