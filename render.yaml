@@ -1,6 +1,8 @@
 databases:
   # 1. PostgreSQL Database
   - name: ratemystore-db
+    plan: free
+    region: oregon
     postgresMajorVersion: 15
 
 services:
@@ -8,7 +10,8 @@ services:
   - type: web
     name: ratemystore-api
     env: node
-    region: ohio
+    plan: free
+    region: oregon
     rootDir: backend
     buildCommand: npm install && npx prisma generate && npx prisma migrate deploy
     startCommand: npm start
