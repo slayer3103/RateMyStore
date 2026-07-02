@@ -26,20 +26,20 @@ A production-ready MERN-stack application (using PostgreSQL and Prisma instead o
 This diagram outlines the core actors (Admin, User, Store Owner) and their specific interactions with the system.
 
 ```mermaid
-usecaseDiagram
-    actor Admin
-    actor User
-    actor "Store Owner" as Owner
+flowchart LR
+    Admin([Admin])
+    User([User])
+    Owner([Store Owner])
 
-    package "RateMyStore Application" {
-        usecase "Manage Users (CRUD)" as UC1
-        usecase "Manage Stores (CRUD)" as UC2
-        usecase "Browse Stores" as UC3
-        usecase "Submit/Edit Rating" as UC4
-        usecase "View Aggregated Stats" as UC5
-        usecase "View Raters List" as UC6
-        usecase "Update Password" as UC7
-    }
+    subgraph "RateMyStore Application"
+        UC1(Manage Users CRUD)
+        UC2(Manage Stores CRUD)
+        UC3(Browse Stores)
+        UC4(Submit/Edit Rating)
+        UC5(View Aggregated Stats)
+        UC6(View Raters List)
+        UC7(Update Password)
+    end
 
     Admin --> UC1
     Admin --> UC2
