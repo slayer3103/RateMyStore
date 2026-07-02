@@ -76,7 +76,7 @@ const ChangePasswordPage = () => {
 
   return (
     <AppLayout>
-      <Box sx={{ maxWidth: 480 }}>
+      <Box sx={{ maxWidth: 480, mx: 'auto', mt: { xs: 2, md: 6 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
           <Lock color="primary" />
           <Box>
