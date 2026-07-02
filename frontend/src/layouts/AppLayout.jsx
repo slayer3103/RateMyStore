@@ -22,7 +22,7 @@ const adminNavItems = [
 
 const userNavItems = [
   { label: 'Browse Stores', icon: <Store />, path: '/stores' },
-  { label: 'My Ratings', icon: <Star />, path: '/stores' },
+  { label: 'My Ratings', icon: <Star />, path: '/stores?filter=my-ratings' },
   { label: 'Change Password', icon: <Lock />, path: '/profile/password' },
 ];
 
@@ -107,7 +107,22 @@ const AppLayout = ({ children }) => {
       {/* Navigation */}
       <List sx={{ flex: 1, px: 1, py: 1 }}>
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const itemPathname = item.path.split('?')[0];
+          const itemSearch = item.path.split('?')[1] || '';
+          
+          let isActive = false;
+          if (itemSearch) {
+            isActive = location.pathname === itemPathname && location.search.includes(itemSearch);
+          } else {
+            // For exact matches without query params, ensure the current location doesn't have the specific filter
+            isActive = location.pathname === itemPathname && !location.search.includes('filter=my-ratings');
+          }
+          
+          // Fallback for paths that don't match the special logic
+          if (item.path === '/profile/password' || item.path.startsWith('/admin') || item.path.startsWith('/owner')) {
+             isActive = location.pathname === item.path;
+          }
+
           return (
             <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
