@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Box, Typography, Card, CardContent, Chip, CircularProgress, Alert,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Rating as MuiRating, Avatar, Divider, Grid,
+  Rating as MuiRating, Avatar, Divider, Grid, Skeleton,
 } from '@mui/material';
 import { Store, Star, People } from '@mui/icons-material';
 import AppLayout from '../layouts/AppLayout';
@@ -20,15 +20,7 @@ const OwnerDashboardPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <AppLayout>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-          <CircularProgress size={48} />
-        </Box>
-      </AppLayout>
-    );
-  }
+
 
   if (error) {
     return (
@@ -55,9 +47,19 @@ const OwnerDashboardPage = () => {
               <Store />
             </Avatar>
             <Box>
-              <Typography variant="h5" fontWeight={700}>{data?.store?.name}</Typography>
-              <Typography variant="body2" color="text.secondary">{data?.store?.email}</Typography>
-              <Typography variant="body2" color="text.secondary">{data?.store?.address}</Typography>
+              {loading ? (
+                <>
+                  <Skeleton variant="text" width={200} height={32} />
+                  <Skeleton variant="text" width={150} />
+                  <Skeleton variant="text" width={250} />
+                </>
+              ) : (
+                <>
+                  <Typography variant="h5" fontWeight={700}>{data?.store?.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">{data?.store?.email}</Typography>
+                  <Typography variant="body2" color="text.secondary">{data?.store?.address}</Typography>
+                </>
+              )}
             </Box>
           </CardContent>
         </Card>
@@ -72,10 +74,10 @@ const OwnerDashboardPage = () => {
                 </Box>
                 <Box>
                   <Typography variant="h4" fontWeight={700}>
-                    {data?.averageRating ?? 'N/A'}
+                    {loading ? <Skeleton width={60} /> : (data?.averageRating ?? 'N/A')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">Average Rating</Typography>
-                  {data?.averageRating && (
+                  {!loading && data?.averageRating && (
                     <MuiRating value={data.averageRating} precision={0.1} readOnly size="small" />
                   )}
                 </Box>
@@ -89,7 +91,9 @@ const OwnerDashboardPage = () => {
                   <People sx={{ color: 'white', fontSize: 28 }} />
                 </Box>
                 <Box>
-                  <Typography variant="h4" fontWeight={700}>{data?.totalRatings ?? 0}</Typography>
+                  <Typography variant="h4" fontWeight={700}>
+                    {loading ? <Skeleton width={40} /> : (data?.totalRatings ?? 0)}
+                  </Typography>
                   <Typography variant="body2" color="text.secondary">Total Ratings</Typography>
                 </Box>
               </CardContent>
@@ -116,10 +120,23 @@ const OwnerDashboardPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data?.raters?.length === 0 ? (
+                {loading ? (
+                  Array.from(new Array(3)).map((_, index) => (
+                    <TableRow key={`skeleton-${index}`}>
+                      <TableCell><Skeleton variant="text" width="80%" /></TableCell>
+                      <TableCell><Skeleton variant="text" width="100%" /></TableCell>
+                      <TableCell><Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: 1 }} /></TableCell>
+                      <TableCell><Skeleton variant="text" width={80} /></TableCell>
+                    </TableRow>
+                  ))
+                ) : data?.raters?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                      <Typography color="text.secondary">No ratings yet</Typography>
+                    <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                        <Star sx={{ fontSize: 48, color: 'text.secondary', opacity: 0.5 }} />
+                        <Typography variant="h6" color="text.secondary">No ratings yet</Typography>
+                        <Typography variant="body2" color="text.disabled">When users rate your store, they will appear here.</Typography>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ) : (

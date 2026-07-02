@@ -142,6 +142,7 @@ const AppLayout = ({ children }) => {
             edge="start"
             onClick={() => setMobileOpen(true)}
             sx={{ mr: 2, display: { md: 'none' } }}
+            aria-label="open drawer"
           >
             <MenuIcon />
           </IconButton>
@@ -149,7 +150,7 @@ const AppLayout = ({ children }) => {
             {navItems.find((n) => n.path === location.pathname)?.label || 'RateMyStore'}
           </Typography>
           <Tooltip title={mode === 'dark' ? 'Light mode' : 'Dark mode'}>
-            <IconButton onClick={toggleTheme} id="theme-toggle-btn">
+            <IconButton onClick={toggleTheme} id="theme-toggle-btn" aria-label="toggle theme">
               {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
           </Tooltip>

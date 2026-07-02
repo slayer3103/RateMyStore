@@ -4,7 +4,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TableSortLabel, Chip, IconButton, Button, Dialog, DialogTitle,
   DialogContent, DialogActions, DialogContentText, Alert, CircularProgress,
-  Tooltip, Rating as MuiRating, Snackbar, Avatar,
+  Tooltip, Rating as MuiRating, Snackbar, Avatar, Skeleton,
 } from '@mui/material';
 import { Search, Delete, Add, Store } from '@mui/icons-material';
 import AppLayout from '../layouts/AppLayout';
@@ -129,17 +129,24 @@ const AdminStoresPage = () => {
               </TableHead>
               <TableBody>
                 {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
+                  Array.from(new Array(5)).map((_, index) => (
+                    <TableRow key={`skeleton-${index}`}>
+                      <TableCell><Skeleton variant="text" width="60%" /></TableCell>
+                      <TableCell><Skeleton variant="text" width="80%" /></TableCell>
+                      <TableCell><Skeleton variant="text" width="90%" /></TableCell>
+                      <TableCell><Skeleton variant="text" width="70%" /><Skeleton variant="text" width="50%" height={12} /></TableCell>
+                      <TableCell><Skeleton variant="text" width={100} /></TableCell>
+                      <TableCell><Skeleton variant="text" width={80} /></TableCell>
+                      <TableCell align="center"><Skeleton variant="circular" width={24} height={24} sx={{ mx: 'auto' }} /></TableCell>
+                    </TableRow>
+                  ))
                 ) : stores.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                        <Store sx={{ fontSize: 40, color: 'text.secondary' }} />
-                        <Typography color="text.secondary">No stores found</Typography>
+                    <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                        <Store sx={{ fontSize: 48, color: 'text.secondary', opacity: 0.5 }} />
+                        <Typography variant="h6" color="text.secondary">No stores found</Typography>
+                        <Typography variant="body2" color="text.disabled">Adjust your search, or add a new store to the system.</Typography>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -179,6 +186,7 @@ const AdminStoresPage = () => {
                         <Tooltip title="Delete">
                           <IconButton
                             id={`delete-store-${store.id}`}
+                            aria-label={`Delete store ${store.name}`}
                             size="small"
                             color="error"
                             onClick={() => setDeleteDialog({ open: true, store })}

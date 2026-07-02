@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Card, CardContent, TextField, InputAdornment,
   Grid, Chip, Alert, CircularProgress, Rating as MuiRating,
-  Button, Snackbar, Avatar,
+  Button, Snackbar, Avatar, Skeleton,
 } from '@mui/material';
 import { Search, Store } from '@mui/icons-material';
 import AppLayout from '../layouts/AppLayout';
@@ -129,14 +129,33 @@ const StoresPage = () => {
         />
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-            <CircularProgress size={48} />
-          </Box>
+          <Grid container spacing={3}>
+            {Array.from(new Array(6)).map((_, index) => (
+              <Grid item xs={12} sm={6} md={4} key={`skeleton-${index}`}>
+                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Skeleton variant="circular" width={44} height={44} />
+                      <Box sx={{ flex: 1 }}>
+                        <Skeleton variant="text" width="70%" height={28} />
+                        <Skeleton variant="text" width="50%" height={20} />
+                      </Box>
+                    </Box>
+                    <Skeleton variant="text" width="90%" height={24} sx={{ mt: 1 }} />
+                    <Skeleton variant="text" width="40%" height={24} />
+                  </CardContent>
+                  <Box sx={{ px: 2, pb: 2 }}>
+                    <Skeleton variant="rounded" height={36} />
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         ) : stores.length === 0 ? (
           <Box sx={{ textAlign: 'center', mt: 8 }}>
-            <Store sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+            <Store sx={{ fontSize: 64, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
             <Typography variant="h6" color="text.secondary">No stores found</Typography>
-            <Typography variant="body2" color="text.secondary">Try adjusting your search</Typography>
+            <Typography variant="body2" color="text.disabled">Try adjusting your search query</Typography>
           </Box>
         ) : (
           <Grid container spacing={3}>
