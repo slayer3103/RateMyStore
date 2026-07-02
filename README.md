@@ -242,25 +242,24 @@ The application will be available at `http://localhost:3000`.
 
 ## Deployment Guide ☁️
 
-### Deploying the Backend (e.g., Render, Railway, or Heroku)
-1. **Database**: Provision a managed PostgreSQL instance and obtain the connection URL.
-2. **Environment Variables**: Add your `DATABASE_URL`, `JWT_SECRET`, `NODE_ENV=production`, and `PORT`.
-3. **Build Command**: Set the build command to install dependencies and generate the Prisma client:
-   ```bash
-   npm install && npx prisma generate
-   ```
-4. **Start Command**:
-   ```bash
-   node server.js
-   ```
+This project is configured for a 1-click deployment to **Render** using a Blueprint (`render.yaml`). The Blueprint automatically provisions a PostgreSQL database, the Node.js backend, and the React static frontend on Render's free tier.
 
-### Deploying the Frontend (e.g., Vercel, Netlify)
-1. **Environment Variables**: Add `VITE_API_URL` pointing to your deployed backend URL (e.g., `https://ratemystore-api.onrender.com/api`).
-2. **Build Command**:
+### 1-Click Deploy via Render
+1. **Push** this repository to your GitHub or GitLab account.
+2. Go to your [Render Dashboard](https://dashboard.render.com/).
+3. Click **New +** > **Blueprint**.
+4. Connect your repository.
+5. Render will automatically detect the `render.yaml` file and prompt you to apply it. Click **Apply**.
+6. Render will spin up the database, run Prisma migrations, build the frontend, and securely link the services together!
+
+### Optional: Seeding the Database on Render
+Once the backend API is deployed, you can seed it with the default accounts (Admin, Store Owner, User):
+1. In your Render Dashboard, select the **ratemystore-api** web service.
+2. Go to the **Shell** tab.
+3. Run the following command:
    ```bash
-   npm run build
+   npx prisma db seed
    ```
-3. **Publish Directory**: Set the output directory to `dist`.
 
 ## License
 MIT License
