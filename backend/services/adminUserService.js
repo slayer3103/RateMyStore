@@ -51,6 +51,14 @@ const getUserById = async (id) => {
       address: true,
       role: true,
       createdAt: true,
+      stores: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+          ratings: { select: { rating: true } }
+        }
+      },
       ratings: {
         select: {
           rating: true,

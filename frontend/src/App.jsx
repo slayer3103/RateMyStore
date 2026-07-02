@@ -11,6 +11,7 @@ import RegisterPage from './pages/RegisterPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminStoresPage from './pages/AdminStoresPage';
+import UserDetailsPage from './pages/UserDetailsPage';
 
 // User pages
 import StoresPage from './pages/StoresPage';
@@ -52,6 +53,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
                 <AdminStoresPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:id"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <UserDetailsPage />
               </ProtectedRoute>
             }
           />

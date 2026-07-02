@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Box, Typography, Card, CardContent, TextField, InputAdornment,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TableSortLabel, Chip, IconButton, Button, Dialog, DialogTitle,
   DialogContent, DialogContentText, DialogActions, Alert, CircularProgress,
   Tooltip, MenuItem, Select, FormControl, InputLabel, Snackbar,
-  Avatar, Skeleton,
+  Avatar, Skeleton, TablePagination, Grid
 } from '@mui/material';
-import { Search, Delete, Visibility, PersonAdd } from '@mui/icons-material';
+import { Search, Delete, Visibility, PersonAdd, FilterList } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
 import { getAdminUsers, adminDeleteUser, adminCreateUser } from '../services/api';
@@ -22,33 +22,53 @@ const AdminUsersPage = () => {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
+  
+  // Filter states
+  const [filterName, setFilterName] = useState('');
+  const [filterEmail, setFilterEmail] = useState('');
+  const [filterAddress, setFilterAddress] = useState('');
+  const [filterRole, setFilterRole] = useState('');
+  
+  // Sorting state
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  
   const [deleteDialog, setDeleteDialog] = useState({ open: false, user: null });
   const [createDialog, setCreateDialog] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getAdminUsers({ search, role: roleFilter || undefined, sortBy, sortOrder });
+      // Fetch all users once and handle granular filtering client-side
+      const res = await getAdminUsers();
       setUsers(res.data.data);
     } catch (err) {
       showError(err.response?.data?.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
-  }, [search, roleFilter, sortBy, sortOrder]);
+  }, []);
 
   useEffect(() => {
-    const timeout = setTimeout(fetchUsers, 300); // debounce search
-    return () => clearTimeout(timeout);
+    fetchUsers();
   }, [fetchUsers]);
 
   const handleSort = (column) => {
     if (sortBy === column) setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     else { setSortBy(column); setSortOrder('asc'); }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const handleDelete = async () => {
@@ -73,61 +93,131 @@ const AdminUsersPage = () => {
     }
   };
 
+  // Client-side filtering, sorting and pagination
+  const filteredSortedPaginatedUsers = useMemo(() => {
+    // Filter
+    let result = users.filter((u) => {
+      if (filterName && !u.name.toLowerCase().includes(filterName.toLowerCase())) return false;
+      if (filterEmail && !u.email.toLowerCase().includes(filterEmail.toLowerCase())) return false;
+      if (filterAddress && !u.address.toLowerCase().includes(filterAddress.toLowerCase())) return false;
+      if (filterRole && u.role !== filterRole) return false;
+      return true;
+    });
+    
+    // Sort
+    result.sort((a, b) => {
+      let valA = a[sortBy];
+      let valB = b[sortBy];
+      
+      if (typeof valA === 'string') valA = valA.toLowerCase();
+      if (typeof valB === 'string') valB = valB.toLowerCase();
+      
+      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+    
+    // Paginate
+    const start = page * rowsPerPage;
+    return {
+      paginated: result.slice(start, start + rowsPerPage),
+      totalFiltered: result.length
+    };
+  }, [users, filterName, filterEmail, filterAddress, filterRole, sortBy, sortOrder, page, rowsPerPage]);
+
   return (
     <AppLayout>
-      <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+      <Box sx={{ pb: 6 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h4" fontWeight={700}>User Management</Typography>
-            <Typography variant="body2" color="text.secondary">{users.length} users found</Typography>
+            <Typography variant="body1" color="text.secondary">{users.length} total users</Typography>
           </Box>
           <Button
             id="create-user-btn"
             variant="contained"
+            size="large"
             startIcon={<PersonAdd />}
             onClick={() => setCreateDialog(true)}
+            sx={{ borderRadius: 2 }}
           >
             Add User
           </Button>
         </Box>
 
         {/* Filters */}
-        <Card sx={{ mb: 3 }}>
-          <CardContent sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <TextField
-              id="user-search"
-              placeholder="Search by name, email, address..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
-              sx={{ flexGrow: 1, minWidth: 200 }}
-              size="small"
-            />
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel id="role-filter-label">Role</InputLabel>
-              <Select
-                labelId="role-filter-label"
-                id="role-filter"
-                label="Role"
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-              >
-                <MenuItem value="">All Roles</MenuItem>
-                <MenuItem value="ADMIN">Admin</MenuItem>
-                <MenuItem value="USER">User</MenuItem>
-                <MenuItem value="STORE_OWNER">Store Owner</MenuItem>
-              </Select>
-            </FormControl>
+        <Card sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <CardContent sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <FilterList color="action" />
+              <Typography variant="subtitle2" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Filter Users
+              </Typography>
+            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  placeholder="Filter by Name"
+                  value={filterName}
+                  onChange={(e) => { setFilterName(e.target.value); setPage(0); }}
+                  fullWidth
+                  size="small"
+                  InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  placeholder="Filter by Email"
+                  value={filterEmail}
+                  onChange={(e) => { setFilterEmail(e.target.value); setPage(0); }}
+                  fullWidth
+                  size="small"
+                  InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  placeholder="Filter by Address"
+                  value={filterAddress}
+                  onChange={(e) => { setFilterAddress(e.target.value); setPage(0); }}
+                  fullWidth
+                  size="small"
+                  InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl size="small" fullWidth>
+                  <InputLabel id="role-filter-label">Filter by Role</InputLabel>
+                  <Select
+                    labelId="role-filter-label"
+                    value={filterRole}
+                    label="Filter by Role"
+                    onChange={(e) => { setFilterRole(e.target.value); setPage(0); }}
+                  >
+                    <MenuItem value="">All Roles</MenuItem>
+                    <MenuItem value="ADMIN">Admin</MenuItem>
+                    <MenuItem value="USER">User</MenuItem>
+                    <MenuItem value="STORE_OWNER">Store Owner</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
           </CardContent>
         </Card>
 
         {/* Table */}
-        <Card>
+        <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
           <TableContainer>
             <Table id="users-table">
-              <TableHead>
+              <TableHead sx={{ bgcolor: 'background.default' }}>
                 <TableRow>
-                  <TableCell>User</TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={sortBy === 'name'}
+                      direction={sortBy === 'name' ? sortOrder : 'asc'}
+                      onClick={() => handleSort('name')}
+                    >Name</TableSortLabel>
+                  </TableCell>
                   <TableCell>
                     <TableSortLabel
                       active={sortBy === 'email'}
@@ -135,8 +225,20 @@ const AdminUsersPage = () => {
                       onClick={() => handleSort('email')}
                     >Email</TableSortLabel>
                   </TableCell>
-                  <TableCell>Address</TableCell>
-                  <TableCell>Role</TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={sortBy === 'address'}
+                      direction={sortBy === 'address' ? sortOrder : 'asc'}
+                      onClick={() => handleSort('address')}
+                    >Address</TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={sortBy === 'role'}
+                      direction={sortBy === 'role' ? sortOrder : 'asc'}
+                      onClick={() => handleSort('role')}
+                    >Role</TableSortLabel>
+                  </TableCell>
                   <TableCell>
                     <TableSortLabel
                       active={sortBy === 'createdAt'}
@@ -159,18 +261,18 @@ const AdminUsersPage = () => {
                       <TableCell align="center"><Skeleton variant="circular" width={24} height={24} sx={{ mx: 'auto' }} /></TableCell>
                     </TableRow>
                   ))
-                ) : users.length === 0 ? (
+                ) : filteredSortedPaginatedUsers.paginated.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
                         <PersonAdd sx={{ fontSize: 48, color: 'text.secondary', opacity: 0.5 }} />
                         <Typography variant="h6" color="text.secondary">No users found</Typography>
-                        <Typography variant="body2" color="text.disabled">Adjust your search or filters, or add a new user.</Typography>
+                        <Typography variant="body2" color="text.disabled">Adjust your filters, or add a new user.</Typography>
                       </Box>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  users.map((user) => (
+                  filteredSortedPaginatedUsers.paginated.map((user) => (
                     <TableRow key={user.id} hover>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -192,23 +294,36 @@ const AdminUsersPage = () => {
                           color={roleColor[user.role]}
                           size="small"
                           variant="outlined"
+                          sx={{ fontWeight: 600 }}
                         />
                       </TableCell>
                       <TableCell>
                         {new Date(user.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell align="center">
-                        <Tooltip title="Delete">
-                          <IconButton
-                            id={`delete-user-${user.id}`}
-                            aria-label={`Delete user ${user.name}`}
-                            size="small"
-                            color="error"
-                            onClick={() => setDeleteDialog({ open: true, user })}
-                          >
-                            <Delete fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                          <Tooltip title="View Details">
+                            <IconButton
+                              id={`view-user-${user.id}`}
+                              size="small"
+                              color="primary"
+                              onClick={() => navigate(`/admin/users/${user.id}`)}
+                            >
+                              <Visibility fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <IconButton
+                              id={`delete-user-${user.id}`}
+                              aria-label={`Delete user ${user.name}`}
+                              size="small"
+                              color="error"
+                              onClick={() => setDeleteDialog({ open: true, user })}
+                            >
+                              <Delete fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))
@@ -216,6 +331,15 @@ const AdminUsersPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredSortedPaginatedUsers.totalFiltered}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Card>
       </Box>
 
@@ -241,7 +365,7 @@ const AdminUsersPage = () => {
       />
 
       <Snackbar open={toast.open} autoHideDuration={4000} onClose={hideToast} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert onClose={hideToast} severity={toast.severity} sx={{ width: '100%' }}>{toast.message}</Alert>
+        <Alert onClose={hideToast} severity={toast.severity} sx={{ width: '100%', borderRadius: 2 }}>{toast.message}</Alert>
       </Snackbar>
     </AppLayout>
   );
