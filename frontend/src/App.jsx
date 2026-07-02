@@ -1,89 +1,95 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeContextProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+
+// Public pages
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 
-// Placeholder components for pages to be implemented in later phases
-const ComingSoon = ({ title }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100vh',
-      fontFamily: 'Inter, sans-serif',
-      flexDirection: 'column',
-      gap: 8,
-    }}
-  >
-    <h2>{title}</h2>
-    <p style={{ color: '#9494B8' }}>Coming in the next phase...</p>
-  </div>
-);
+// Admin pages
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import AdminStoresPage from './pages/AdminStoresPage';
+
+// User pages
+import StoresPage from './pages/StoresPage';
+
+// Owner pages
+import OwnerDashboardPage from './pages/OwnerDashboardPage';
+
+// Shared pages
+import ChangePasswordPage from './pages/ChangePasswordPage';
 
 function App() {
   return (
     <ThemeContextProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+        <Routes>
+          {/* ─── Public Routes ───────────────────────────────────────── */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-            {/* Admin routes */}
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
-                  <ComingSoon title="Admin Dashboard" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
-                  <ComingSoon title="User Management" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/stores"
-              element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
-                  <ComingSoon title="Store Management" />
-                </ProtectedRoute>
-              }
-            />
+          {/* ─── Admin Routes ────────────────────────────────────────── */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminUsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/stores"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminStoresPage />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* User routes */}
-            <Route
-              path="/stores"
-              element={
-                <ProtectedRoute allowedRoles={['USER']}>
-                  <ComingSoon title="Browse Stores" />
-                </ProtectedRoute>
-              }
-            />
+          {/* ─── Normal User Routes ──────────────────────────────────── */}
+          <Route
+            path="/stores"
+            element={
+              <ProtectedRoute allowedRoles={['USER']}>
+                <StoresPage />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Owner routes */}
-            <Route
-              path="/owner/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={['STORE_OWNER']}>
-                  <ComingSoon title="Owner Dashboard" />
-                </ProtectedRoute>
-              }
-            />
+          {/* ─── Owner Routes ─────────────────────────────────────────── */}
+          <Route
+            path="/owner/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['STORE_OWNER']}>
+                <OwnerDashboardPage />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        </BrowserRouter>
+          {/* ─── Shared Routes (all authenticated roles) ─────────────── */}
+          <Route
+            path="/profile/password"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN', 'USER', 'STORE_OWNER']}>
+                <ChangePasswordPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ─── Default Redirect ─────────────────────────────────────── */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
       </AuthProvider>
     </ThemeContextProvider>
   );
