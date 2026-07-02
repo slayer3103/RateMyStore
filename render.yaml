@@ -1,10 +1,10 @@
-services:
+databases:
   # 1. PostgreSQL Database
-  - type: pgo
-    name: ratemystore-db
+  - name: ratemystore-db
     plan: free
     postgresMajorVersion: 15
 
+services:
   # 2. Node.js Backend API
   - type: web
     name: ratemystore-api
